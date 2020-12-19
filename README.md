@@ -43,7 +43,7 @@ CAPTCHA_SECRET= Captchaları çözmek için anti-captcha.comdan alınmış token
 #### Apiler
 Apileri kullanmak için api_users tablosunda bir tanımlama yapılmalıdır. Ordaki private_key token olarak isteğin içinde gönderilmelidir. 
 
-#####Yeni sorgu
+##### Yeni sorgu
 Endpoint: /query
 
 tax_number = Vergi numarasını temsil eder. 
@@ -58,7 +58,7 @@ Method: "post"
 }`
 
 
-#####Var olan işlem sorgulama
+##### Var olan işlem sorgulama
 Endpoint: /check-process
 
 reference = ilgili işlemin sistem tarafından verilen referans numarası. 
@@ -74,7 +74,7 @@ Method: "post"
 
 
 
-#### Olası hatalar
+### Olası hatalar
 
 ***KRİTİK***
 
@@ -87,7 +87,7 @@ Sistem herhangi bir şekilde captcha doğrulayamaz ise giriş aşamasında 3 def
 Bu işlem firma bilgilerine olumlu veya olumsuz ulaşana kadar devam eder.
 
 
-#### Riskler
+### Riskler
 
 Herhangi bir şekilde mersis sisteminin suistimal edilmesi veya burdaki bilgilerin kötüye kullanılması söz konusu değildir. Yapılan işlem tamamen tarayıcalar üzerinden yapılan kullanıcının manuel bilgileri doldurması işleminin otomatize edilmiş halidir. Burda yapılan işlem Mersis sistemine kaydolunurken kabul edilen gizlilik sözleşmesine aykırı bir durum oluşturmamaktadır. Buna rağmen kullanmak tamamen sizin sorumluluğunuzdadır.
 
