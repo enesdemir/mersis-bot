@@ -88,6 +88,7 @@ Bu işlem firma bilgilerine olumlu veya olumsuz ulaşana kadar devam eder.
 
 
 ####RİSKLER
+
 Herhangi bir şekilde mersis sisteminin suistimal edilmesi veya burdaki bilgilerin kötüye kullanılması söz konusu değildir. Yapılan işlem tamamen tarayıcalar üzerinden yapılan kullanıcının manuel bilgileri doldurması işleminin otomatize edilmiş halidir. Burda yapılan işlem Mersis sistemine kaydolunurken kabul edilen gizlilik sözleşmesine aykırı bir durum oluşturmamaktadır. Buna rağmen kullanmak tamamen sizin sorumluluğunuzdadır.
 
 
