@@ -30,7 +30,7 @@ function run() {
 
         isWorkingProcess = true;
         const browser = await puppeteer.launch({
-            /*headless: false, devtools: true,*/
+            headless: true, devtools: false,
             slowMo: PUPPETEER_SLOW_MO
         });
         const page = await browser.newPage();
@@ -113,7 +113,7 @@ function run() {
                             let canContinue = true;
                             let date = new Date();
                             await page.evaluate(() => document.getElementById("VergiNo").value = "")
-                            await pool.query("UPDATE queues t SET t.process_start_at = '" + date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "' WHERE t.id = " + rows[i].id);
+                            await pool.query("UPDATE queues t SET t.process_start_at = '" + date.toMysqlFormat() + "' WHERE t.id = " + rows[i].id);
                             const element = await page.$('#captchaImage');        // declare a variable with an ElementHandle
                             await element.screenshot({path: 'test2.png'});
                             const captcha2 = fs.readFileSync('test2.png', {encoding: 'base64'});
@@ -128,7 +128,7 @@ function run() {
                                         error = error2 + " captcha çözülemedi."
                                     });
                                 if (error) {
-                                    await pool.query("INSERT INTO mrs.failed_jobs (queue_id, description) VALUES (" + rows[i].id + ", '" + error + "')")
+                                    await pool.query("INSERT INTO failed_jobs (queue_id, description) VALUES (" + rows[i].id + ", '" + error + "')")
                                     isCaptchaFalse = false;
                                     canContinue = false;
                                     continue;
@@ -169,7 +169,7 @@ function run() {
                             }
                             if (searchNotFound) {
                                 console.log("Firma bulunamadı. ");
-                                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "',t.status=1,bot_payload='{\"status\":false,\"message\":\"Firma bulunamadı\"}' WHERE t.id = " + rows[i].id);
+                                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload='{\"status\":false,\"message\":\"Firma bulunamadı\"}' WHERE t.id = " + rows[i].id);
                             } else {
                                 console.log("Firma Bulundu.");
                                 await page.click("#gridAramaFirmaCommonList > tbody > tr > td > a");
@@ -315,7 +315,7 @@ function run() {
                                 };
                                 result = JSON.stringify(result);
 
-                                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "',t.status=1,bot_payload=? WHERE t.id = " + rows[i].id, [result]);
+                                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload=? WHERE t.id = " + rows[i].id, [result]);
                                 await page.waitForSelector('#btnClearDegisiklikFirmaAra')
                                 await page.click('#btnClearDegisiklikFirmaAra');
                                 //#collapseOne > div
@@ -333,3 +333,19 @@ function run() {
         isWorkingProcess = false;
     })();
 }
+
+function twoDigits(d) {
+    if(0 <= d && d < 10) return "0" + d.toString();
+    if(-10 < d && d < 0) return "-0" + (-1*d).toString();
+    return d.toString();
+}
+
+/**
+ * …and then create the method to output the date string as desired.
+ * Some people hate using prototypes this way, but if you are going
+ * to apply this to more than one Date object, having it as a prototype
+ * makes sense.
+ **/
+Date.prototype.toMysqlFormat = function() {
+    return this.getUTCFullYear() + "-" + twoDigits(1 + this.getUTCMonth()) + "-" + twoDigits(this.getUTCDate()) + " " + twoDigits(this.getUTCHours()) + ":" + twoDigits(this.getUTCMinutes()) + ":" + twoDigits(this.getUTCSeconds());
+};
