@@ -38,7 +38,7 @@ router.post("/check-process", [
     }
     const check = await checkToken(req.body.token);
     if (check) {
-        const check = await pool.query("select * from mrs.queues where reference_number='" + req.body.reference + "' and created_at>'" + moment().add(-30, 'days').format("YYYY-MM-DD HH:mm:ss") + "'");
+        const check = await pool.query("select * from queues where reference_number='" + req.body.reference + "' and created_at>'" + moment().add(-30, 'days').format("YYYY-MM-DD HH:mm:ss") + "'");
         if (check[0][0]) {
             if (check[0][0].status === 1) {
                 const result = {
@@ -99,7 +99,7 @@ router.post("/query", [
     if (!user) {
         return res.status(401).json({status: false});
     }
-    const check = await pool.query("select * from mrs.queues where tax_number='" + req.body.tax_number + "' and created_at>'" + moment().add(-30, 'days').format("YYYY-MM-DD HH:mm:ss") + "'");
+    const check = await pool.query("select * from queues where tax_number='" + req.body.tax_number + "' and created_at>'" + moment().add(-30, 'days').format("YYYY-MM-DD HH:mm:ss") + "'");
     if (check[0][0]) {
         if (check[0][0].status === 1) {
             const result = {
@@ -123,7 +123,7 @@ router.post("/query", [
         }
     }
     let reference = getRandomArbitrary(1000000000, 9999999999);
-    const result = await pool.query('INSERT INTO mrs.queues (created_at, process_start_at, process_end_at, reference_number, tax_number, bot_payload, status, error_log, user_payload,api_user_id) VALUES (now(), null, null, \'' + reference + '\', \'' + req.body.tax_number + '\', null, 0, null, \'' + JSON.stringify({
+    const result = await pool.query('INSERT INTO queues (created_at, process_start_at, process_end_at, reference_number, tax_number, bot_payload, status, error_log, user_payload,api_user_id) VALUES (now(), null, null, \'' + reference + '\', \'' + req.body.tax_number + '\', null, 0, null, \'' + JSON.stringify({
         token: req.body.token,
         tax_number: req.body.tax_number
     }) + '\',' + user + ')\n');
