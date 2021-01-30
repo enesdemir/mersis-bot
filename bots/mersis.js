@@ -37,7 +37,7 @@ function run() {
         page.on('console', msg => console.log('PAGE LOG:', msg.text()));
         let testGo = true;
         let testCount = 0;
-        while (testGo && testCount < 3) {
+        while (testGo && testCount < 10) {
             testCount++;
             console.log("test: " + testCount);
             try {
@@ -252,7 +252,7 @@ function run() {
                                 });
     7330407854
                                  */
-                                let yetkili = {};
+                                let yetkili = {yetkililer: [], firma_uyeleri: [], gorev_dagilimi: []};
                                 await page.click("#hrefYKYetkili");
                                 await page.waitForSelector("#gridFirmaTicariSinirliYetkili");
                                 let yetkili_info = "<table id='table1'>";
@@ -261,14 +261,17 @@ function run() {
                                     yetkili_info += "</table>";
                                     yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
                                     const a = HtmlTableToJson.parse(yetkili_info);
-                                    const aObj = {
-                                        name_surname: a._results[0][0]['Adı Soyadı'],
-                                        permission: a._results[0][0]['Yetki'],
-                                        permission_type: a._results[0][0]['Yetki Şekli'],
-                                        permission_term: a._results[0][0]['Yetki Süresi'],
-                                        permission_end_at: a._results[0][0]['Yetki Bitiş Tarihi'],
-                                    };
-                                    yetkili.yetkililer = aObj;
+                                    console.log(a);
+                                    for (let z = 0; z < a._results[0].length; z++) {
+                                        const aObj = {
+                                            name_surname: a._results[0][z]['Adı Soyadı'],
+                                            permission: a._results[0][z]['Yetki'],
+                                            permission_type: a._results[0][z]['Yetki Şekli'],
+                                            permission_term: a._results[0][z]['Yetki Süresi'],
+                                            permission_end_at: a._results[0][z]['Yetki Bitiş Tarihi'],
+                                        };
+                                        yetkili.yetkililer.push(aObj);
+                                    }
                                 } catch (e) {
                                     console.log(e);
                                 }
@@ -280,11 +283,13 @@ function run() {
                                     yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
                                     const b = HtmlTableToJson.parse(yetkili_info);
                                     console.log(b._results);
-                                    const bObj = {
-                                        name_surname: b._results[0][0]['Adı Soyadı'],
-                                        mission_term: b._results[0][0]['Görev Süresi']
-                                    };
-                                    yetkili.firma_uyeleri = bObj;
+                                    for (let z = 0; z < b._results[0].length; z++) {
+                                        const bObj = {
+                                            name_surname: b._results[0][z]['Adı Soyadı'],
+                                            mission_term: b._results[0][z]['Görev Süresi']
+                                        };
+                                        yetkili.firma_uyeleri.push(bObj);
+                                    }
                                 } catch (e) {
                                     console.log(e);
                                 }
@@ -295,14 +300,17 @@ function run() {
                                     yetkili_info += "</table>";
                                     yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
                                     const c = HtmlTableToJson.parse(yetkili_info);
+                                    console.log("aaaaa----");
                                     console.log(c._results);
-                                    const cObj = {
-                                        name_surname: c._results[0][0]['Adı Soyadı'],
-                                        mission_distribution: c._results[0][0]['Görev Dağılımı'],
-                                        permission_term: c._results[0][0]['Yetki Süresi'],
-                                        permission_end_at: c._results[0][0]['Yetki Bitiş Tarihi']
-                                    };
-                                    yetkili.gorev_dagilimi = cObj;
+                                    for (let z = 0; z < c._results[0].length; z++) {
+                                        const cObj = {
+                                            name_surname: c._results[0][z]['Adı Soyadı'],
+                                            mission_distribution: c._results[0][z]['Görev Dağılımı'],
+                                            permission_term: c._results[0][z]['Yetki Süresi'],
+                                            permission_end_at: c._results[0][z]['Yetki Bitiş Tarihi']
+                                        };
+                                        yetkili.gorev_dagilimi.push(cObj);
+                                    }
                                 } catch (e) {
                                     console.log(e);
                                 }
@@ -335,8 +343,8 @@ function run() {
 }
 
 function twoDigits(d) {
-    if(0 <= d && d < 10) return "0" + d.toString();
-    if(-10 < d && d < 0) return "-0" + (-1*d).toString();
+    if (0 <= d && d < 10) return "0" + d.toString();
+    if (-10 < d && d < 0) return "-0" + (-1 * d).toString();
     return d.toString();
 }
 
@@ -346,6 +354,6 @@ function twoDigits(d) {
  * to apply this to more than one Date object, having it as a prototype
  * makes sense.
  **/
-Date.prototype.toMysqlFormat = function() {
+Date.prototype.toMysqlFormat = function () {
     return this.getUTCFullYear() + "-" + twoDigits(1 + this.getUTCMonth()) + "-" + twoDigits(this.getUTCDate()) + " " + twoDigits(this.getUTCHours()) + ":" + twoDigits(this.getUTCMinutes()) + ":" + twoDigits(this.getUTCSeconds());
 };
