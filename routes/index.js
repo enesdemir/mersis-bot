@@ -135,7 +135,8 @@ router.post("/query", [
         ss.push(rows[i])
     }
     console.log(rows);*/
-    return res.status(200).json({status: true, cached: false, reference: reference})
+    return res.status(200).json({status: true, cached: false,
+        processing: true, reference: reference})
 })
 ;
 
