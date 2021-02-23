@@ -10,11 +10,12 @@ Sistemin genel İşleyişinde kuyruk yapısı vardır. Kullanıcıların sorgula
 Sistemin çalıştırılması için önce `npm install ` çalıştırılarak gerekli kütüphaneler kurulmalıdır ardından da;
  
 `node bin/www`
+pm2 ile çalıştırmak için
+`pm2 start ecosystem.config.js --env production`
 
 ve 
 
 `node bots/mersis.js`
-
 komutları çalıştırılmalıdır. 
 
 Sistemin sağlıklı işlemesi için tek bir node scripti ayağa kaldırılmalıdır. Her ne kadar çoklu çalıştırlabilir olsa da çoklu hesaptan (veya tekil hesaptan) eş zamanlı sorgulamalar bu versiyonunda desteklenmemektedir.
