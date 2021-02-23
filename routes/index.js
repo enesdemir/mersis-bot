@@ -115,7 +115,7 @@ router.post("/query", [
                 data: result
             });
         } else if (check[0][0].status === 0) {
-            publisher.publish(PUB_SUB_NAME, JSON.stringify(result[0]));
+            publisher.publish(PUB_SUB_NAME, JSON.stringify(check[0][0]));
             return res.status(200).json({
                 status: true,
                 processing: true,
