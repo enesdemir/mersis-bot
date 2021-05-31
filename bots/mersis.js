@@ -254,76 +254,89 @@ function run() {
                                  */
                                 let yetkili = {yetkililer: [], firma_uyeleri: [], gorev_dagilimi: []};
                                 await page.click("#hrefYKYetkili");
-                                await page.waitForSelector("#gridFirmaTicariSinirliYetkili");
-                                let yetkili_info = "<table id='table1'>";
+                                let goAhead = true;
                                 try {
-                                    yetkili_info += await page.$eval('#gridFirmaTicariSinirliYetkili', e => e.innerHTML);
-                                    yetkili_info += "</table>";
-                                    yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
-                                    const a = HtmlTableToJson.parse(yetkili_info);
-                                    console.log(a);
-                                    for (let z = 0; z < a._results[0].length; z++) {
-                                        const aObj = {
-                                            name_surname: a._results[0][z]['Adı Soyadı'],
-                                            permission: a._results[0][z]['Yetki'],
-                                            permission_type: a._results[0][z]['Yetki Şekli'],
-                                            permission_term: a._results[0][z]['Yetki Süresi'],
-                                            permission_end_at: a._results[0][z]['Yetki Bitiş Tarihi'],
-                                        };
-                                        yetkili.yetkililer.push(aObj);
-                                    }
+                                    await page.waitForSelector("#gridFirmaTicariSinirliYetkili");
                                 } catch (e) {
-                                    console.log(e);
+                                    /*
+                                    Eğer firma yetkilisi yoksa yukardaki idli alan timeout veriyor. Bu sebeple burda manuel kontrol gerekli
+                                     */
+                                    console.log("Firma bulunamadı. ");
+                                    await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload='{\"status\":false,\"message\":\"Firma bulunamadı - Yetkilisi görülemediği için devam edilemiyor. Lütfen manuel kontrol sağlayın.\"}' WHERE t.id = " + rows[i].id);
+                                    goAhead = false;
                                 }
 
-                                try {
-                                    yetkili_info = "<table id='table2'>";
-                                    yetkili_info += await page.$eval('#gridFirmaUyelerListesi', e => e.innerHTML);
-                                    yetkili_info += "</table>";
-                                    yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
-                                    const b = HtmlTableToJson.parse(yetkili_info);
-                                    console.log(b._results);
-                                    for (let z = 0; z < b._results[0].length; z++) {
-                                        const bObj = {
-                                            name_surname: b._results[0][z]['Adı Soyadı'],
-                                            mission_term: b._results[0][z]['Görev Süresi']
-                                        };
-                                        yetkili.firma_uyeleri.push(bObj);
+                                if (goAhead) {
+                                    let yetkili_info = "<table id='table1'>";
+                                    try {
+                                        yetkili_info += await page.$eval('#gridFirmaTicariSinirliYetkili', e => e.innerHTML);
+                                        yetkili_info += "</table>";
+                                        yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
+                                        const a = HtmlTableToJson.parse(yetkili_info);
+                                        console.log(a);
+                                        for (let z = 0; z < a._results[0].length; z++) {
+                                            const aObj = {
+                                                name_surname: a._results[0][z]['Adı Soyadı'],
+                                                permission: a._results[0][z]['Yetki'],
+                                                permission_type: a._results[0][z]['Yetki Şekli'],
+                                                permission_term: a._results[0][z]['Yetki Süresi'],
+                                                permission_end_at: a._results[0][z]['Yetki Bitiş Tarihi'],
+                                            };
+                                            yetkili.yetkililer.push(aObj);
+                                        }
+                                    } catch (e) {
+                                        console.log(e);
                                     }
-                                } catch (e) {
-                                    console.log(e);
-                                }
 
-                                try {
-                                    yetkili_info = "<table id='table3'>";
-                                    yetkili_info += await page.$eval('#gridFirmaOrtakYetkiliOlduguFirmalarListesi', e => e.innerHTML);
-                                    yetkili_info += "</table>";
-                                    yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
-                                    const c = HtmlTableToJson.parse(yetkili_info);
-                                    console.log("aaaaa----");
-                                    console.log(c._results);
-                                    for (let z = 0; z < c._results[0].length; z++) {
-                                        const cObj = {
-                                            name_surname: c._results[0][z]['Adı Soyadı'],
-                                            mission_distribution: c._results[0][z]['Görev Dağılımı'],
-                                            permission_term: c._results[0][z]['Yetki Süresi'],
-                                            permission_end_at: c._results[0][z]['Yetki Bitiş Tarihi']
-                                        };
-                                        yetkili.gorev_dagilimi.push(cObj);
+                                    try {
+                                        yetkili_info = "<table id='table2'>";
+                                        yetkili_info += await page.$eval('#gridFirmaUyelerListesi', e => e.innerHTML);
+                                        yetkili_info += "</table>";
+                                        yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
+                                        const b = HtmlTableToJson.parse(yetkili_info);
+                                        console.log(b._results);
+                                        for (let z = 0; z < b._results[0].length; z++) {
+                                            const bObj = {
+                                                name_surname: b._results[0][z]['Adı Soyadı'],
+                                                mission_term: b._results[0][z]['Görev Süresi']
+                                            };
+                                            yetkili.firma_uyeleri.push(bObj);
+                                        }
+                                    } catch (e) {
+                                        console.log(e);
                                     }
-                                } catch (e) {
-                                    console.log(e);
+
+                                    try {
+                                        yetkili_info = "<table id='table3'>";
+                                        yetkili_info += await page.$eval('#gridFirmaOrtakYetkiliOlduguFirmalarListesi', e => e.innerHTML);
+                                        yetkili_info += "</table>";
+                                        yetkili_info = yetkili_info.replace(/\<tfoot\>([\s\S]*)\<\/tfoot\>/g, '');
+                                        const c = HtmlTableToJson.parse(yetkili_info);
+                                        console.log("aaaaa----");
+                                        console.log(c._results);
+                                        for (let z = 0; z < c._results[0].length; z++) {
+                                            const cObj = {
+                                                name_surname: c._results[0][z]['Adı Soyadı'],
+                                                mission_distribution: c._results[0][z]['Görev Dağılımı'],
+                                                permission_term: c._results[0][z]['Yetki Süresi'],
+                                                permission_end_at: c._results[0][z]['Yetki Bitiş Tarihi']
+                                            };
+                                            yetkili.gorev_dagilimi.push(cObj);
+                                        }
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
+
+
+                                    let result = {
+                                        status: true,
+                                        info: info,
+                                        yetkili_info: yetkili
+                                    };
+                                    result = JSON.stringify(result);
+
+                                    await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload=? WHERE t.id = " + rows[i].id, [result]);
                                 }
-
-
-                                let result = {
-                                    status: true,
-                                    info: info,
-                                    yetkili_info: yetkili
-                                };
-                                result = JSON.stringify(result);
-
-                                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload=? WHERE t.id = " + rows[i].id, [result]);
                                 await page.waitForSelector('#btnClearDegisiklikFirmaAra')
                                 await page.click('#btnClearDegisiklikFirmaAra');
                                 //#collapseOne > div
