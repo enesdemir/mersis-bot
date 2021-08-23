@@ -115,12 +115,18 @@ router.post("/query", [
                 data: result
             });
         } else if (check[0][0].status === 0) {
-            publisher.publish(PUB_SUB_NAME, JSON.stringify(check[0][0]));
-            return res.status(200).json({
-                status: true,
-                processing: true,
-                reference: parseInt(check[0][0].reference_number)
-            });
+            const philliTime = moment(check[0][0].created_at, 'YYYY-MM-DD HH:mm:ss').add(2, 'm');
+            if (philliTime.diff(moment(), 's') < 0) {
+                let date = new Date();
+                await pool.query("UPDATE queues t SET t.process_end_at = '" + date.toMysqlFormat() + "',t.status=1,bot_payload='{\"status\":false,\"message\":\"Firma bulunamadı\"}' WHERE t.id = " + check[0][0].id);
+            } else {
+                publisher.publish(PUB_SUB_NAME, JSON.stringify(check[0][0]));
+                return res.status(200).json({
+                    status: true,
+                    processing: true,
+                    reference: parseInt(check[0][0].reference_number)
+                });
+            }
         }
     }
     let reference = getRandomArbitrary(1000000000, 9999999999);
@@ -135,8 +141,10 @@ router.post("/query", [
         ss.push(rows[i])
     }
     console.log(rows);*/
-    return res.status(200).json({status: true, cached: false,
-        processing: true, reference: reference})
+    return res.status(200).json({
+        status: true, cached: false,
+        processing: true, reference: reference
+    })
 })
 ;
 
